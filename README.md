@@ -1,2 +1,32 @@
-# readme-builder-cli
-Guides the user through a few CLI prompts and generates a beautiful README.md.
+
+  # 
+  
+  ## Description
+  
+  
+  ## Installation
+ ### 1. f
+
+```
+i
+```
+
+### 2. s
+
+```
+n
+```
+
+ 
+  ## Usage
+  
+  
+  ## Technologies Used
+  
+  
+  ## License
+  This project is licensed under the  license.
+  
+  ## Created by
+  [](https://github.com/)
+  

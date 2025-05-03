@@ -1,0 +1,28 @@
+{
+  "name": "readme-builder-cli",
+  "version": "1.0.0",
+  "description": "Guides the user through a few CLI prompts and generates a beautiful README.md.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "readme-builder": "./bin/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Epic2077/readme-builder-cli.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Epic2077/readme-builder-cli/issues"
+  },
+  "homepage": "https://github.com/Epic2077/readme-builder-cli#readme",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "inquirer": "^12.6.0"
+  }
+}
