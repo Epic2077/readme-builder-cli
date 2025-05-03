@@ -6,6 +6,7 @@ import prompts from "../questions/prompts.js";
 import generateReadme from "../lib/generateReadme.js";
 import askInstallationSteps from "../lib/installationsteps.js";
 import fs from "fs/promises";
+import askTechnologies from "../lib/technologies.js";
 
 console.log(chalk.blue.bold("🚀 readme-builder-cli started!"));
 
@@ -54,7 +55,10 @@ async function chooseCommand() {
 
       const installationSteps = await askInstallationSteps();
 
+      const technologies = await askTechnologies();
+
       answers.installation = installationSteps;
+      answers.technologies = technologies;
       const content = generateReadme(answers);
 
       await fs.writeFile("README.md", content);
