@@ -9,6 +9,7 @@ import fs from "fs/promises";
 import askTechnologies from "../lib/technologies.js";
 import askMultiple from "../lib/askMultiple.js";
 import generateCustomReadme from "../lib/generateCustomReadme.js"; // ✅ Fixed import
+import askSteps from "../lib/askSteps.js";
 
 console.log(chalk.blue.bold("🚀 readme-builder-cli started!"));
 
@@ -45,69 +46,65 @@ async function chooseCommand() {
         chalk.green("  custom") + "  Start a custom README generation"
       );
       continue;
-    } else if (cmd === "template") {
-      console.log(chalk.green("Starting the README generation process..."));
-
-      const answers = await inquirer.prompt(prompts);
-      const installationSteps = await askInstallationSteps();
-      const technologies = await askTechnologies();
-
-      answers.installation = installationSteps;
-      answers.technologies = technologies;
-
-      const content = generateReadme(answers);
-      await fs.writeFile("README.md", content);
-
-      console.log("\n✅ README.md file generated successfully!");
-      console.log(
-        chalk.blue("You can now open and review your README.md file.\n")
-      );
-
-      const readmeContent = await fs.readFile("README.md", "utf-8");
-      console.log("📄 Generated README content:\n");
-      console.log(chalk.gray(readmeContent));
-      break;
     } else if (cmd === "custom") {
-      const { sections } = await inquirer.prompt({
-        type: "checkbox",
-        name: "sections",
-        message: "Which sections do you want to include?",
-        choices: [
-          { name: "Title", value: "title" },
-          { name: "Description", value: "description" },
-          { name: "Overview", value: "overview" },
-          { name: "Installation", value: "installation" },
-          { name: "Usage", value: "usage" },
-          { name: "Technologies", value: "technologies" },
-          { name: "Contributing", value: "contribution" },
-          { name: "License", value: "license" },
-          { name: "GitHub Info", value: "github" },
-        ],
-        validate: (sel) => sel.length > 0 || "Select at least one section",
-      });
+      const sections = [];
 
-      const customAnswers = {};
-      for (const sec of sections) {
-        if (sec === "installation") {
-          customAnswers.installation = await askMultiple(
-            "Add an installation step"
-          );
-        } else if (sec === "technologies") {
-          customAnswers.technologies = await askMultiple(
-            "Add a technology used"
-          );
+      while (true) {
+        const { sectionType } = await inquirer.prompt({
+          type: "list",
+          name: "sectionType",
+          message: "What section do you want to add?",
+          choices: [
+            { name: "🔧 Custom section", value: "custom" },
+            { name: "Title", value: "title" },
+            { name: "Description", value: "description" },
+            { name: "Overview", value: "overview" },
+            { name: "Usage", value: "usage" },
+            { name: "Installation (multi-step)", value: "installation" },
+            { name: "Technologies (multi-step)", value: "technologies" },
+            { name: "Contributing", value: "contribution" },
+            { name: "License", value: "license" },
+            { name: "GitHub Info", value: "github" },
+            new inquirer.Separator(),
+            { name: "✅ Finish", value: "finish" },
+            new inquirer.Separator(),
+          ],
+        });
+
+        if (sectionType === "finish") break;
+
+        if (sectionType === "installation") {
+          const steps = await askSteps("Add an installation step");
+          sections.push({ type: "installation", content: steps });
+        } else if (sectionType === "technologies") {
+          const techs = await askMultiple("Add a technology used");
+          sections.push({ type: "technologies", content: techs });
+        } else if (sectionType === "custom") {
+          const { header, content } = await inquirer.prompt([
+            {
+              type: "input",
+              name: "header",
+              message: "Enter your custom section title:",
+            },
+            {
+              type: "editor",
+              name: "content",
+              message: `Enter the content for this section:`,
+            },
+          ]);
+          sections.push({ type: "custom", header, content });
         } else {
-          const { [sec]: value } = await inquirer.prompt({
+          const { content } = await inquirer.prompt({
             type: "input",
-            name: sec,
-            message: `Enter ${sec} content:`,
+            name: "content",
+            message: `Enter content for ${sectionType}:`,
           });
-          customAnswers[sec] = value;
+          sections.push({ type: sectionType, content });
         }
       }
 
-      const customContent = generateCustomReadme(customAnswers, sections);
-      await fs.writeFile("README.md", customContent);
+      const content = generateCustomReadme(sections);
+      await fs.writeFile("README.md", content);
       console.log(chalk.green("✅ Custom README.md generated!"));
       break;
     } else if (cmd === "exit") {
