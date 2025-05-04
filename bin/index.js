@@ -71,6 +71,67 @@ async function chooseCommand() {
       console.log("\n📄 Generated README content:\n");
       console.log(chalk.gray(readmeContent));
       break; // or continue if you want to stay in the loop
+    } else if (cmd === "custom") {
+      // 1) Pick which sections to include
+      const { sections } = await inquirer.prompt({
+        type: "checkbox",
+        name: "sections",
+        message: "Which sections do you want to include?",
+        choices: [
+          { name: "Title", value: "title" },
+          { name: "Description", value: "description" },
+          { name: "Overview", value: "overview" },
+          { name: "Installation", value: "installation" },
+          { name: "Usage", value: "usage" },
+          { name: "Technologies", value: "technologies" },
+          { name: "Contributing", value: "contribution" },
+          { name: "License", value: "license" },
+          { name: "GitHub Info", value: "github" },
+        ],
+        validate: (sel) => sel.length > 0 || "Select at least one section",
+      });
+
+      // 2) Dynamically prompt for each chosen section
+      const customPrompts = sections.map((sec) => {
+        let msg;
+        switch (sec) {
+          case "title":
+            msg = "Enter the project title:";
+            break;
+          case "description":
+            msg = "Enter the project description:";
+            break;
+          case "overview":
+            msg = "Enter an overview of your project:";
+            break;
+          case "installation":
+            msg = "Enter installation instructions:";
+            break;
+          case "usage":
+            msg = "Enter usage instructions:";
+            break;
+          case "technologies":
+            msg = "List the technologies used (comma-separated):";
+            break;
+          case "contribution":
+            msg = "Enter your contribution guidelines:";
+            break;
+          case "license":
+            msg = "Enter the license name:";
+            break;
+          case "github":
+            msg = "Enter your GitHub username:";
+            break;
+        }
+        return { type: "input", name: sec, message: msg };
+      });
+      const customAnswers = await inquirer.prompt(customPrompts);
+
+      // 3) Generate & write
+      const customContent = generateCustomReadme(customAnswers, sections);
+      await fs.writeFile("README.md", customContent);
+      console.log(chalk.green("✅ Custom README.md generated!"));
+      break;
     } else if (cmd === "exit") {
       process.exit(0);
     } else {
