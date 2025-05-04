@@ -1,20 +1,35 @@
+# readme-builder-cli
+
+## Description
+A simple and interactive CLI tool to generate beautiful and professional `README.md` files for your projects in seconds.
+
 ## Installation
-- first
+ ### NaN. Install using npm
 
 ```bash
-npm i
+npm install -g readme-builder-cli
 ```
 
-- then
+ ### NaN. or run it locally using `npx`:
 
 ```bash
-npm no i
+npx readme-builder
 ```
 
-- All Done!
+## Usage
+You can start the CLI with `readme-builder`.
 
-## 📂 Output Example
-here's a small portion of what gets generated:
+## Available Commands
+| Command    | Description                                      |
+| ---------- | ------------------------------------------------ |
+| `help`     | Show available commands                          |
+| `template` | Generate a README using a guided template flow   |
+| `custom`   | Select only the sections you want in your README |
+| `exit`     | Exit the CLI                                     |
+
+
+## Output Example
+Here’s a small portion of what gets generated:
 ```md
 # My Project Title
 
@@ -31,3 +46,18 @@ A short description of the project.
 - Node.js
 - Inquirer
 ```
+
+## Technologies
+- Node.js
+- Inquirer.js
+- Chalk
+- ES Modules
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## License
+This project is licensed under the MIT license.
+
+## Created by
+[Epic2077](https://github.com/Epic2077)

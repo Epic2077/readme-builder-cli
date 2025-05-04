@@ -55,9 +55,14 @@ async function chooseCommand() {
           name: "sectionType",
           message: "What section do you want to add?",
           choices: [
+            new inquirer.Separator(),
+            { name: "✅ Finish", value: "finish" },
+            new inquirer.Separator(),
             { name: "🔧 Custom section", value: "custom" },
             { name: "Title", value: "title" },
+            { name: "Table of Contents", value: "tableOfContents" },
             { name: "Description", value: "description" },
+            { name: "Features", value: "feature" },
             { name: "Overview", value: "overview" },
             { name: "Usage", value: "usage" },
             { name: "Installation (multi-step)", value: "installation" },
@@ -65,9 +70,6 @@ async function chooseCommand() {
             { name: "Contributing", value: "contribution" },
             { name: "License", value: "license" },
             { name: "GitHub Info", value: "github" },
-            new inquirer.Separator(),
-            { name: "✅ Finish", value: "finish" },
-            new inquirer.Separator(),
           ],
         });
 
@@ -79,6 +81,9 @@ async function chooseCommand() {
         } else if (sectionType === "technologies") {
           const techs = await askMultiple("Add a technology used");
           sections.push({ type: "technologies", content: techs });
+        } else if (sectionType === "feature") {
+          const techs = await askMultiple("Add features");
+          sections.push({ type: "feature", content: techs });
         } else if (sectionType === "custom") {
           const { header, content } = await inquirer.prompt([
             {
