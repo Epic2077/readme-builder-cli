@@ -7,6 +7,8 @@ import generateReadme from "../lib/generateReadme.js";
 import askInstallationSteps from "../lib/installationsteps.js";
 import fs from "fs/promises";
 import askTechnologies from "../lib/technologies.js";
+import askMultiple from "../lib/askMultiple.js";
+import generateCustomReadme from "../lib/generateCustomReadme.js"; // ✅ Fixed import
 
 console.log(chalk.blue.bold("🚀 readme-builder-cli started!"));
 
@@ -19,7 +21,7 @@ async function chooseCommand() {
       new inquirer.Separator(),
       { name: "Show available commands", value: "help" },
       { name: "Start README generation with a template", value: "template" },
-      { name: "Start a custom README generation", value: "template" },
+      { name: "Start a custom README generation", value: "custom" }, // ✅ Fixed value
       { name: "Exit", value: "exit" },
     ],
   });
@@ -28,51 +30,44 @@ async function chooseCommand() {
 
 (async () => {
   while (true) {
-    // 1) read the CLI arg, or if none, prompt the user
     let cmd = process.argv[2];
     if (!cmd) {
       cmd = await chooseCommand();
     }
 
-    // 2) handle it
     if (cmd === "help") {
       console.log(chalk.yellow("Available commands:"));
       console.log(chalk.green("  help") + "  Show available commands");
       console.log(
-        chalk.green("  start with template") +
-          "  Start README generation using a template"
+        chalk.green("  template") + "  Start README generation using a template"
       );
       console.log(
-        chalk.green("  start a custom README") +
-          "  Start a custom README generation"
+        chalk.green("  custom") + "  Start a custom README generation"
       );
-      // loop back to prompt
       continue;
     } else if (cmd === "template") {
       console.log(chalk.green("Starting the README generation process..."));
 
       const answers = await inquirer.prompt(prompts);
-
       const installationSteps = await askInstallationSteps();
-
       const technologies = await askTechnologies();
 
       answers.installation = installationSteps;
       answers.technologies = technologies;
-      const content = generateReadme(answers);
 
+      const content = generateReadme(answers);
       await fs.writeFile("README.md", content);
+
       console.log("\n✅ README.md file generated successfully!");
       console.log(
-        chalk.blue("You can now open and review your README.md file.")
+        chalk.blue("You can now open and review your README.md file.\n")
       );
 
       const readmeContent = await fs.readFile("README.md", "utf-8");
-      console.log("\n📄 Generated README content:\n");
+      console.log("📄 Generated README content:\n");
       console.log(chalk.gray(readmeContent));
-      break; // or continue if you want to stay in the loop
+      break;
     } else if (cmd === "custom") {
-      // 1) Pick which sections to include
       const { sections } = await inquirer.prompt({
         type: "checkbox",
         name: "sections",
@@ -91,43 +86,26 @@ async function chooseCommand() {
         validate: (sel) => sel.length > 0 || "Select at least one section",
       });
 
-      // 2) Dynamically prompt for each chosen section
-      const customPrompts = sections.map((sec) => {
-        let msg;
-        switch (sec) {
-          case "title":
-            msg = "Enter the project title:";
-            break;
-          case "description":
-            msg = "Enter the project description:";
-            break;
-          case "overview":
-            msg = "Enter an overview of your project:";
-            break;
-          case "installation":
-            msg = "Enter installation instructions:";
-            break;
-          case "usage":
-            msg = "Enter usage instructions:";
-            break;
-          case "technologies":
-            msg = "List the technologies used (comma-separated):";
-            break;
-          case "contribution":
-            msg = "Enter your contribution guidelines:";
-            break;
-          case "license":
-            msg = "Enter the license name:";
-            break;
-          case "github":
-            msg = "Enter your GitHub username:";
-            break;
+      const customAnswers = {};
+      for (const sec of sections) {
+        if (sec === "installation") {
+          customAnswers.installation = await askMultiple(
+            "Add an installation step"
+          );
+        } else if (sec === "technologies") {
+          customAnswers.technologies = await askMultiple(
+            "Add a technology used"
+          );
+        } else {
+          const { [sec]: value } = await inquirer.prompt({
+            type: "input",
+            name: sec,
+            message: `Enter ${sec} content:`,
+          });
+          customAnswers[sec] = value;
         }
-        return { type: "input", name: sec, message: msg };
-      });
-      const customAnswers = await inquirer.prompt(customPrompts);
+      }
 
-      // 3) Generate & write
       const customContent = generateCustomReadme(customAnswers, sections);
       await fs.writeFile("README.md", customContent);
       console.log(chalk.green("✅ Custom README.md generated!"));
@@ -137,7 +115,6 @@ async function chooseCommand() {
     } else {
       console.log(chalk.red(`Unknown command: ${cmd}`));
       console.log(chalk.yellow("Type 'help' to see available commands."));
-      // loop back to prompt
       continue;
     }
   }
