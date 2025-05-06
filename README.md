@@ -4,10 +4,10 @@
 A simple and interactive CLI tool to generate beautiful and professional `README.md` files for your projects in seconds.
 
 ## Installation
- ### NaN. Install using npm
+ ### NaN. clone the repo then
 
 ```bash
-npm install -g readme-builder-cli
+npm install 
 ```
 
  ### NaN. or run it locally using `npx`:
